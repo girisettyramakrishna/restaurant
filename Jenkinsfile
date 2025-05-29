@@ -1,40 +1,34 @@
 pipeline {
     agent any
 
-    environment {
-        ANDROID_HOME = "/opt/android-sdk"  // Update based on your setup
-        PATH = "$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/girisettyramakrishna/android.git'
+                checkout scm
             }
         }
 
-        stage('Build QRcodeLibrary APK') {
+        stage('Build APK') {
             steps {
+                // If your gradlew is in a subfolder like 'MyApplication123', put that folder name in dir()
                 dir('.') {
                     sh 'chmod +x ./gradlew'
-                    sh './gradlew :QRcodeLibrary:assembleDebug'
+                    sh './gradlew assembleDebug'
                 }
             }
         }
 
         stage('Archive APK') {
             steps {
-                archiveArtifacts artifacts: 'QRcodeLibrary/build/outputs/**/*.apk', allowEmptyArchive: true
+                // Adjust APK path according to your project structure
+                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
             }
         }
     }
 
     post {
         failure {
-            echo "Build failed! Please check the logs."
-        }
-        success {
-            echo "Build succeeded. APK archived."
+            echo 'Build failed! Please check the logs.'
         }
     }
 }
