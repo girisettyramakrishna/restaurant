@@ -2,31 +2,34 @@ pipeline {
     agent any
 
     environment {
-        ANDROID_HOME = '/home/jenkins/android-sdk'
+        ANDROID_HOME = "/home/jenkins/android-sdk"
+        PATH+ANDROID = "/home/jenkins/android-sdk/platform-tools:/home/jenkins/android-sdk/cmdline-tools/latest/bin"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/girisettyramakrishna/restaurant.git', branch: 'master'
+                git 'https://github.com/girisettyramakrishna/restaurant.git'
             }
         }
 
         stage('Permissions') {
             steps {
-                sh 'chmod +x ./gradlew'
+                sh 'chmod +x gradlew'
             }
         }
 
         stage('Build APK') {
             steps {
-                sh './gradlew clean assembleDebug'
+                dir('YourAppDirectory') {
+                    sh './gradlew assembleDebug'
+                }
             }
         }
 
         stage('Archive APK') {
             steps {
-                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
+                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/app-debug.apk', allowEmptyArchive: true
             }
         }
     }
@@ -34,9 +37,6 @@ pipeline {
     post {
         failure {
             echo 'Build failed! Please check the logs.'
-        }
-        success {
-            echo 'Build succeeded!'
         }
     }
 }
