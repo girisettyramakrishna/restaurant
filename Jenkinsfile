@@ -1,36 +1,28 @@
 pipeline {
     agent any
 
+    environment {
+        ANDROID_HOME = "${HOME}/android-sdk"
+        PATH = "${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                // Clone your repo
-                git url: 'https://github.com/girisettyramakrishna/restaurant.git'
+                git 'https://github.com/girisettyramakrishna/restaurant.git'
             }
         }
 
-        stage('Build') {
+        stage('Build APK') {
             steps {
-                // Temporarily extend PATH with Android SDK tools
-                withEnv(["PATH=/home/jenkins/android-sdk/platform-tools:/home/jenkins/android-sdk/cmdline-tools/latest/bin:${env.PATH}"]) {
-                    sh '''
-                        echo "Current PATH:"
-                        echo $PATH
-                        
-                        # Run your build commands here, for example:
-                        # ./gradlew assembleDebug
-                    '''
-                }
+                sh './gradlew assembleDebug'
             }
         }
-    }
 
-    post {
-        success {
-            echo 'Build succeeded!'
-        }
-        failure {
-            echo 'Build failed, please check the logs.'
+        stage('Archive APK') {
+            steps {
+                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
+            }
         }
     }
 }
