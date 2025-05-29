@@ -15,7 +15,8 @@ pipeline {
 
         stage('Build APK') {
             steps {
-                sh './gradlew assembleDebug'
+                sh 'chmod +x ./gradlew'         // 🛠️ Add this line
+                sh './gradlew assembleDebug'    // Then build
             }
         }
 
