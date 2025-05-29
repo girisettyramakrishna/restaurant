@@ -1,17 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+        ANDROID_HOME = '/home/jenkins/android-sdk'
+        PATH = "${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/cmdline-tools/latest/bin:${PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/girisettyramakrishna/android.git'
             }
         }
 
         stage('Build APK') {
             steps {
-                // If your gradlew is in a subfolder like 'MyApplication123', put that folder name in dir()
-                dir('.') {
+                dir('YourAppDirectory') {
                     sh 'chmod +x ./gradlew'
                     sh './gradlew assembleDebug'
                 }
@@ -20,8 +24,7 @@ pipeline {
 
         stage('Archive APK') {
             steps {
-                // Adjust APK path according to your project structure
-                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
+                archiveArtifacts artifacts: '**/build/outputs/**/*.apk', fingerprint: true
             }
         }
     }
