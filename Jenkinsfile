@@ -3,28 +3,30 @@ pipeline {
 
     environment {
         ANDROID_HOME = '/home/jenkins/android-sdk'
-        PATH = "${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/cmdline-tools/latest/bin:${PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/girisettyramakrishna/android.git'
+                git url: 'https://github.com/girisettyramakrishna/restaurant.git', branch: 'master'
+            }
+        }
+
+        stage('Permissions') {
+            steps {
+                sh 'chmod +x ./gradlew'
             }
         }
 
         stage('Build APK') {
             steps {
-                dir('YourAppDirectory') {
-                    sh 'chmod +x ./gradlew'
-                    sh './gradlew assembleDebug'
-                }
+                sh './gradlew clean assembleDebug'
             }
         }
 
         stage('Archive APK') {
             steps {
-                archiveArtifacts artifacts: '**/build/outputs/**/*.apk', fingerprint: true
+                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
             }
         }
     }
@@ -32,6 +34,9 @@ pipeline {
     post {
         failure {
             echo 'Build failed! Please check the logs.'
+        }
+        success {
+            echo 'Build succeeded!'
         }
     }
 }
