@@ -2,28 +2,46 @@ pipeline {
     agent any
 
     environment {
-        ANDROID_HOME = "${HOME}/android-sdk"
+        ANDROID_HOME = "/home/ubuntu/android-sdk"
         PATH = "${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
+        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle"  // Optional: to avoid permission issues
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/girisettyramakrishna/restaurant.git'
+                git url: 'https://github.com/girisettyramakrishna/restaurant.git', branch: 'master'
+            }
+        }
+
+        stage('Prepare SDK') {
+            steps {
+                sh '''
+                    echo "sdk.dir=$ANDROID_HOME" > local.properties
+                    chmod +x gradlew
+                '''
             }
         }
 
         stage('Build APK') {
             steps {
-                sh 'chmod +x ./gradlew'         // 🛠️ Add this line
-                sh './gradlew assembleDebug'    // Then build
+                sh './gradlew clean assembleDebug'
             }
         }
 
         stage('Archive APK') {
             steps {
-                archiveArtifacts artifacts: '**/app/build/outputs/apk/debug/*.apk', fingerprint: true
+                archiveArtifacts artifacts: '**/build/outputs/**/*.apk', allowEmptyArchive: false
             }
+        }
+    }
+
+    post {
+        failure {
+            echo '❌ Build failed!'
+        }
+        success {
+            echo '✅ APK built successfully!'
         }
     }
 }
