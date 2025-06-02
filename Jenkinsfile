@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        ANDROID_HOME = "/home/ubuntu/android-sdk"  // ✅ Your correct SDK path
+        ANDROID_HOME = "/home/ubuntu/android-sdk" // Update to match your system
         PATH = "${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
-        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle"  // ✅ Optional, helps avoid permission issues
+        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle"
     }
 
     stages {
@@ -18,7 +18,7 @@ pipeline {
             steps {
                 sh '''
                     echo "sdk.dir=$ANDROID_HOME" > local.properties
-                    chmod +x ./gradlew
+                    chmod +x gradlew
                 '''
             }
         }
@@ -37,11 +37,11 @@ pipeline {
     }
 
     post {
-        failure {
-            echo '❌ Build failed!'
-        }
         success {
             echo '✅ APK built successfully!'
+        }
+        failure {
+            echo '❌ Build failed!'
         }
     }
 }
