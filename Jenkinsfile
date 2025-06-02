@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        ANDROID_HOME = "/home/ubuntu/android-sdk"
+        ANDROID_HOME = "/home/ubuntu/android-sdk"  // ✅ Your correct SDK path
         PATH = "${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${PATH}"
-        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle"  // Optional: to avoid permission issues
+        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle"  // ✅ Optional, helps avoid permission issues
     }
 
     stages {
@@ -18,7 +18,7 @@ pipeline {
             steps {
                 sh '''
                     echo "sdk.dir=$ANDROID_HOME" > local.properties
-                    chmod +x gradlew
+                    chmod +x ./gradlew
                 '''
             }
         }
